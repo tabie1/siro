@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日本100名城・続日本100名城</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .castle {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        .castle.clicked百 {
+            background-color: #ffcccc;
+        }
+        .castle.clicked続 {
+            background-color: #cce5ff;
+        }
+        .stats {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stats">
+            <span>日本100名城：<span id="count百">0</span>/100 制覇</span> |
+            <span>続日本100名城：<span id="count続">0</span>/100 制覇</span>
+        </div>
+        <button id="saveButton">攻城記録をクリップボードに保存する</button>
+        <div id="castleList"></div>
+    </div>
+    <script>
+        const data = `
+北海道,根室半島チャシ跡群（百）,五稜郭（百）,松前城（百）,志苔館（続）,上之国勝山館（続）
+青森県,弘前城（百）,根城（百）,浪岡城（続）
+岩手県,盛岡城（百）,九戸城（続）
+宮城県,多賀城（百）,仙台城（百）,白石城（続）
+秋田県,久保田城（百）,脇本城（続）,秋田城（続）
+山形県,山形城（百）,鶴ヶ岡城（続）,米沢城（続）
+福島県,二本松城（百）,会津若松城（百）,白河小峰城（百）,三春城（続）,向羽黒山城（続）
+茨城県,水戸城（百）,笠間城（続）,土浦城（続）
+栃木県,足利氏館（百）,唐沢山城（続）
+群馬県,箕輪城（百）,金山城（百）,名胡桃城（続）,沼田城（続）,岩櫃城（続）
+埼玉県,鉢形城（百）,川越城（百）,忍城（続）,杉山城（続）,菅谷館（続）
+千葉県,佐倉城（百）,本佐倉城（続）,大多喜城（続）
+東京都,江戸城（百）,八王子城（百）,滝山城（続）,品川台場（続）
+神奈川県,小田原城（百）,小机城（続）,石垣山城（続）
+山梨県,武田氏館（百）,甲府城（百）,新府城（続）,要害山城（続）
+長野県,松代城（百）,上田城（百）,小諸城（百）,松本城（百）,高遠城（百）,龍岡城（続）,高島城（続）
+新潟県,新発田城（百）,春日山城（百）,村上城（続）,高田城（続）,鮫ヶ尾城（続）
+富山県,高岡城（百）,富山城（続）,増山城（続）
+石川県,七尾城（百）,金沢城（百）,鳥越城（続）
+福井県,丸岡城（百）,一乗谷城（百）,福井城（続）,越前大野城（続）,佐柿国吉城（続）,玄蕃尾城（続）,
+岐阜県,岩村城（百）,岐阜城（百）,郡上八幡城（続）,苗木城（続）,美濃金山城（続）,大垣城（続）
+静岡県,山中城（百）,駿府城（百）,掛川城（百）,興国寺城（続）,諏訪原城（続）,高天神城（続）,浜松城（続）
+愛知県,犬山城（百）,名古屋城（百）,岡崎城（百）,長篠城（百）,小牧山城（続）,古宮城（続）,吉田城（続）
+三重県,伊賀上野城（百）,松阪城（百）,津城（続）,多気北畠氏城館（続）,田丸城（続）,赤木城（続）
+滋賀県,小谷城（百）,彦根城（百）,安土城（百）,観音寺城（百）,鎌刃城（続）,八幡山城（続）
+京都府,二条城（百）,福知山城（続）
+大阪府,大阪城（百）,千早城（百）,芥川山城（続）,飯盛城（続）,岸和田城（続）
+兵庫県,竹田城（百）,篠山城（百）,明石城（百）,姫路城（百）,赤穂城（百）,出石城・有子山城（続）,黒井城（続）,洲本城（続）
+奈良県,高取城（百）,大和郡山城（続）,宇陀松山城（続）
+和歌山県,和歌山城（百）,新宮城（続）
+鳥取県,鳥取城（百）,若桜鬼ヶ城（続）,米子城（続）
+島根県,松江城（百）,月山富田城（百）,津和野城（百）,浜田城（続）
+岡山県,津山城（百）,備中松山城（百）,鬼ノ城（百）,岡山城（百）,備中高松城（続）
+広島県,福山城（百）,吉田郡山城（百）,広島城（百）,三原城（続）,新高山城（続）
+山口県,岩国城（百）,萩城（百）,大内氏館・高嶺城（続）
+徳島県,徳島城（百）,勝瑞城（続）,一宮城（続）
+香川県,高松城（百）,丸亀城（百）,引田城（続）
+愛媛県,今治城（百）,湯築城（百）,松山城（百）,大洲城（百）,宇和島城（百）,能島城（続）,河後森城（続）
+高知県,高知城（百）,岡豊城（続）
+福岡県,福岡城（百）,大野城（百）,小倉城（続）,水城（続）,久留米城（続）
+佐賀県,名護屋城（百）,吉野ヶ里（百）,佐賀城（百）,基肄城（続）,唐津城（続）
+長崎県,平戸城（百）,島原城（百）,金田城（続）,福江城（続）,原城（続）
+熊本県,熊本城（百）,人吉城（百）,鞠智城（続）,八代城（続）
+大分県,大分府内城（百）,岡城（百）,中津城（続）,角牟礼城（続）,臼杵城（続）,佐伯城（続）
+宮崎県,飫肥城（百）,延岡城（続）,佐土原城（続）
+鹿児島県,鹿児島城（百）,志布志城（続）,知覧城（続）
+沖縄県,今帰仁城（百）,中城城（百）,首里城（百）,座喜味城（続）,勝連城（続）`;
+        const 百 = "百";
+        const 続 = "続";
+        let count百 = 0;
+        let count続 = 0;
+        const castleList = document.getElementById('castleList');
+        const count百Element = document.getElementById('count百');
+        const count続Element = document.getElementById('count続');
+        const saveButton = document.getElementById('saveButton');
+        const castles = [];
+        // Generate castle elements
+        data.trim().split('\n').forEach(line => {
+            const [prefecture, ...castleNames] = line.split(',');
+            const prefectureDiv = document.createElement('div');
+            prefectureDiv.innerHTML = `<strong>${prefecture}</strong>`;
+            castleList.appendChild(prefectureDiv);
+            castleNames.forEach(castleName => {
+                const castleDiv = document.createElement('div');
+                castleDiv.className = 'castle';
+                castleDiv.textContent = castleName;
+                castles.push(castleDiv);
+                // Add click event
+                castleDiv.addEventListener('click', () => {
+                    const is百 = castleName.includes(`（${百}）`);
+                    const is続 = castleName.includes(`（${続}）`);
+                    if (is百 && !castleDiv.classList.contains('clicked百')) {
+                        count百++;
+                        castleDiv.classList.add('clicked百');
+                    } else if (is百) {
+                        count百--;
+                        castleDiv.classList.remove('clicked百');
+                    }
+                    if (is続 && !castleDiv.classList.contains('clicked続')) {
+                        count続++;
+                        castleDiv.classList.add('clicked続');
+                    } else if (is続) {
+                        count続--;
+                        castleDiv.classList.remove('clicked続');
+                    }
+                    count百Element.textContent = count百;
+                    count続Element.textContent = count続;
+                });
+                prefectureDiv.appendChild(castleDiv);
+            });
+        });
+        // Save progress function
+        function saveProgress() {
+            let binaryStr = castles.map(castleDiv =>
+                castleDiv.classList.contains('clicked百') || castleDiv.classList.contains('clicked続') ? '1' : '0'
+            ).join('');
+            // Ensure binary string length is a multiple of 4 for hexadecimal conversion
+            if (binaryStr.length % 4 !== 0) {
+                binaryStr = binaryStr.padEnd(binaryStr.length + (4 - (binaryStr.length % 4)), '0');
+            }
+            let hexStr = '';
+            for (let i = 0; i < binaryStr.length; i += 4) {
+                hexStr += parseInt(binaryStr.substring(i, i + 4), 2).toString(16);
+            }
+            const url = new URL(window.location);
+            url.searchParams.set('progress', hexStr);
+            navigator.clipboard.writeText(url.toString()).then(() => {
+                alert('URLをクリップボードにコピーしました');
+            });
+        }
+        // Restore progress
+        function restoreProgress() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hexStr = urlParams.get('progress');
+            if (hexStr) {
+                const binaryStr = [...hexStr].map(hex => parseInt(hex, 16).toString(2).padStart(4, '0')).join('');
+                binaryStr.split('').forEach((bit, index) => {
+                    if (bit === '1') {
+                        const castleDiv = castles[index];
+                        const is百 = castleDiv.textContent.includes(`（${百}）`);
+                        const is続 = castleDiv.textContent.includes(`（${続}）`);
+                        if (is百 && !castleDiv.classList.contains('clicked百')) {
+                            count百++;
+                            castleDiv.classList.add('clicked百');
+                        }
+                        if (is続 && !castleDiv.classList.contains('clicked続')) {
+                            count続++;
+                            castleDiv.classList.add('clicked続');
+                        }
+                    }
+                });
+                count百Element.textContent = count百;
+                count続Element.textContent = count続;
+            }
+        }
+        saveButton.addEventListener('click', saveProgress);
+        restoreProgress();
+    </script>
+</body>
+</html>

@@ -37,11 +37,13 @@
 <body>
     <div class="container">
         <div class="stats">
-            <span>日本100名城：<span id="count百">0</span>/100 制覇</span> |
-            <span>続日本100名城：<span id="count続">0</span>/100 制覇</span>
+            <span>日本100名城制覇数：<span id="count百">0</span>/100</span> 　|　
+            <span>続日本100名城制覇数：<span id="count続">0</span>/100</span>
         </div>
-        <button id="saveButton">攻城記録をクリップボードに保存する</button>
+        <button id="saveButton">攻城記録を保存</button>
+        <input type="text" id="urlTextbox" readonly style="width: 30%; margin-top: 10px;">
         <div id="castleList"></div>
+
     </div>
     <script>
         const data = `
@@ -64,7 +66,7 @@
 新潟県,新発田城（百）,春日山城（百）,村上城（続）,高田城（続）,鮫ヶ尾城（続）
 富山県,高岡城（百）,富山城（続）,増山城（続）
 石川県,七尾城（百）,金沢城（百）,鳥越城（続）
-福井県,丸岡城（百）,一乗谷城（百）,福井城（続）,越前大野城（続）,佐柿国吉城（続）,玄蕃尾城（続）,
+福井県,丸岡城（百）,一乗谷城（百）,福井城（続）,越前大野城（続）,佐柿国吉城（続）,玄蕃尾城（続）
 岐阜県,岩村城（百）,岐阜城（百）,郡上八幡城（続）,苗木城（続）,美濃金山城（続）,大垣城（続）
 静岡県,山中城（百）,駿府城（百）,掛川城（百）,興国寺城（続）,諏訪原城（続）,高天神城（続）,浜松城（続）
 愛知県,犬山城（百）,名古屋城（百）,岡崎城（百）,長篠城（百）,小牧山城（続）,古宮城（続）,吉田城（続）
@@ -152,8 +154,9 @@
             const url = new URL(window.location);
             url.searchParams.set('progress', hexStr);
             navigator.clipboard.writeText(url.toString()).then(() => {
-                alert('URLをクリップボードにコピーしました');
-            });
+            urlTextbox.value = url.toString();
+            urlTextbox.select();
+          });
         }
         // Restore progress
         function restoreProgress() {

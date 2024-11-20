@@ -186,6 +186,28 @@
         }
         saveButton.addEventListener('click', saveProgress);
         restoreProgress();
+  
+        // Existing code...
+        // Reset button functionality
+        const resetButton = document.getElementById('resetButton');
+        function resetProgress() {
+            castles.forEach(castleDiv => {
+                if (castleDiv.classList.contains('clicked百')) {
+                    castleDiv.classList.remove('clicked百');
+                    count百--;
+                }
+                if (castleDiv.classList.contains('clicked続')) {
+                    castleDiv.classList.remove('clicked続');
+                    count続--;
+                }
+            });
+            count百Element.textContent = count百;
+            count続Element.textContent = count続;
+        }
+        resetButton.addEventListener('click', resetProgress);
+  
+      
+      
     </script>
 </body>
 </html>

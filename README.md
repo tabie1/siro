@@ -40,7 +40,7 @@
 
 ## デモ
 アプリのデモはこちらからお試しください:  
-[**アプリを見る**]([https://example.com/demo](https://tabie1.github.io/siro/siro.html))
+[**アプリを見る**]([https://tabie1.github.io/siro/siro.html]
 
 ---
 

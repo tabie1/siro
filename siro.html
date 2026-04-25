@@ -103,6 +103,8 @@
         const count百Element = document.getElementById('count百');
         const count続Element = document.getElementById('count続');
         const saveButton = document.getElementById('saveButton');
+        const resetButton = document.getElementById('resetButton');
+        const urlTextbox = document.getElementById('urlTextbox');
         const castles = [];
         // Generate castle elements
         data.trim().split('\n').forEach(line => {
@@ -155,9 +157,9 @@
             const url = new URL(window.location);
             url.searchParams.set('progress', hexStr);
             navigator.clipboard.writeText(url.toString()).then(() => {
-            urlTextbox.value = url.toString();
-            urlTextbox.select();
-          });
+                urlTextbox.value = url.toString();
+                urlTextbox.select();
+            });
         }
         // Restore progress
         function restoreProgress() {
@@ -166,7 +168,7 @@
             if (hexStr) {
                 const binaryStr = [...hexStr].map(hex => parseInt(hex, 16).toString(2).padStart(4, '0')).join('');
                 binaryStr.split('').forEach((bit, index) => {
-                    if (bit === '1') {
+                    if (bit === '1' && index < castles.length) {
                         const castleDiv = castles[index];
                         const is百 = castleDiv.textContent.includes(`（${百}）`);
                         const is続 = castleDiv.textContent.includes(`（${続}）`);
@@ -186,28 +188,23 @@
         }
         saveButton.addEventListener('click', saveProgress);
         restoreProgress();
-  
-        // Existing code...
+
         // Reset button functionality
-        const resetButton = document.getElementById('resetButton');
         function resetProgress() {
             castles.forEach(castleDiv => {
-                if (castleDiv.classList.contains('clicked百')) {
-                    castleDiv.classList.remove('clicked百');
-                    count百--;
-                }
-                if (castleDiv.classList.contains('clicked続')) {
-                    castleDiv.classList.remove('clicked続');
-                    count続--;
-                }
+                castleDiv.classList.remove('clicked百', 'clicked続');
             });
+            count百 = 0;
+            count続 = 0;
             count百Element.textContent = count百;
             count続Element.textContent = count続;
+
+            const url = new URL(window.location);
+            url.searchParams.delete('progress');
+            history.replaceState(null, '', url.toString());
+            urlTextbox.value = '';
         }
         resetButton.addEventListener('click', resetProgress);
-  
-      
-      
     </script>
 </body>
 </html>
